@@ -7,6 +7,20 @@
 
 #include <string.h>
 
+int readn(int sockfd, char *buffer, int n){
+    int k;
+    int rc = 0;
+    for(int i = 0; i < n; ++i){
+        k = read(sockfd, buffer + rc, 1);
+        rc += 1;
+        if (k < 0){
+            printf("Socket error while reading \n");
+            exit(1);
+        }
+    }
+    return rc;
+}
+
 int main(int argc, char *argv[]) {
     int sockfd, n;
     uint16_t portno;
