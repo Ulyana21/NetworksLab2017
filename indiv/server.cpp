@@ -24,7 +24,7 @@
 #pragma comment (lib, "Ws2_32.lib")
 // #pragma comment (lib, "Mswsock.lib")
 
-#define DEFAULT_BUFLEN 2048 // Razmer buffera
+#define DEFAULT_BUFLEN 2048 // Размер буффера
 #define DEFAULT_PORT 27015
 #define FNAME_SIZE 30
 #define SNAME_SIZE 3
@@ -36,11 +36,11 @@
 //char const_path[MAX_PATH];
 char const_path[MAX_PATH] = "C:/VS2010_test/File_sys/Debug/";
 int CCount = 0;
-SOCKET client_socket;    // Socket dlya klienta
-sockaddr_in client_addr;    // Adres klienta
+SOCKET client_socket;    // Сокет для клиента
+sockaddr_in client_addr;    // Адрес клиента
 int ID = 0;
 
-// Macros dlya pechati podkluchennyh polzovatelei
+// Макрос для печати подключенных пользователей
 #define PRINTNUSERS if (CCount)\
 printf("%d user on-line\n",CCount);\
 else printf("No User on line\n");
@@ -48,7 +48,7 @@ else printf("No User on line\n");
 char UserInfo[256][40];
 
 
-// Protoyip funkcii, obsluzhivaushey Polzovatelei
+// Прототип функции, обслуживающей пользователя
 DWORD WINAPI ServToClient(LPVOID client_socket);
 DWORD WINAPI Console(LPVOID IpParam);
 
@@ -159,7 +159,7 @@ int main(int argc, char* argv[])
 
 	WSADATA wsaData;
 	int iResult;
-	//Schetchik kolichestva polzovatelei
+	//Счетчик кол-ва пользователей
 	int length = 0;
 
 
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 
 	printf("Mail Server Started...\n");
 
-	// Inicializaciya Winsock
+	// Инициализация Winsock
 	iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	printf("WSAS starting... \n");
 	if (iResult != 0)
@@ -182,10 +182,10 @@ int main(int argc, char* argv[])
 
 	sockaddr_in Server;
 	Server.sin_family = AF_INET;
-	Server.sin_addr.s_addr = inet_addr("127.0.0.1"); //local_addr.sin_addr.s_addr=0; Dlya priema so vseh adresov
+	Server.sin_addr.s_addr = inet_addr("127.0.0.1"); //local_addr.sin_addr.s_addr=0; Для приема со всех адресов
 	Server.sin_port = htons(DEFAULT_PORT); //Adres porta podklucheniya
 
-	SOCKET MySocket; //Sozdanie Socketa dlya servera
+	SOCKET MySocket; //Создание сокета для сервера
 
 	MySocket = socket(AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP);
 	printf("Listening starting... \n");
@@ -212,12 +212,12 @@ int main(int argc, char* argv[])
 	HANDLE Ct;
 	Ct = CreateThread(NULL, 0, Console, 0, 0, &thID);
 	if (Ct == NULL)
-		printf("Oshibka sozdaniya potoka konsoli! \n");
+		printf("Error. Don't create console thread! \n");
 
 
 	freeaddrinfo(result);
 
-	iResult = listen(MySocket, 0x100); // 0x100 Razmer ocheredi
+	iResult = listen(MySocket, 0x100); // 0x100 Размер очереди
 	printf("Listening... \n");
 	if (iResult == SOCKET_ERROR)
 	{
@@ -249,15 +249,15 @@ int main(int argc, char* argv[])
 			ID = 0;
 		}
 
-		//Poluchaem svedeniya o cliente
+		//Получение сведений о клиенте
 		HOSTENT *hst;
 		hst = gethostbyaddr((char *)&client_addr.sin_addr.s_addr, 4, AF_INET);
 
-		// Vivod svedeniy o cliente
+		// Вывод сведений о клиенте
 		printf("+%s [%s] new connect!\n", (hst) ? hst->h_name : "", inet_ntoa(client_addr.sin_addr));
-		PRINTNUSERS //Vivod informacii
+		PRINTNUSERS //Вывод инфы
 
-			//Vizov novogo potoka dlya obslujivaniya clienta
+			//Вызов нового потока для обслуживания клиента
 			CreateThread(NULL, NULL, ServToClient, &client_socket, NULL, &thID);
 
 	}
@@ -265,7 +265,7 @@ int main(int argc, char* argv[])
 	return 0;
 }
 
-//Funkciya obsluzhivaniya ocherednogo podkluchivshegosya clienta
+//Ф-ия обслуживания очередного подключенного клиента
 
 DWORD WINAPI ServToClient(LPVOID client_socket)
 {
@@ -285,20 +285,20 @@ DWORD WINAPI ServToClient(LPVOID client_socket)
 	strcat_s(UserInfo[MyID], "\n");
 	printf("%s", UserInfo[MyID]);
 	fflush(stdout);
-	//Zadanie dlinn
-	//opredelenie peremennyh
-	char recvbuf[DEFAULT_BUFLEN]; //Vhodnoi buffe
+	//Задание длин
+	//Определение переменных
+	char recvbuf[DEFAULT_BUFLEN]; //Входной buffe
 	int iResult;
 	char user[30];
 
-	//Inicializaciya bufferov
+	//Инициализация буфферов
 	memset(recvbuf, 0, DEFAULT_BUFLEN);
 	int end = 0;
 	memset(user, 0, 30);
 
 
 
-	//Regulator ostanovki prilozheniya
+	//Регулятор остановки приложения
 	bool r = false;
 
 	do
@@ -431,7 +431,7 @@ br1:
 	ZeroMemory(UserInfo[MyID], 30);
 	closesocket(my_sock);
 
-	CCount = CCount - 1; // Umenshaem schetchik klientov
+	CCount = CCount - 1; // Уменьшаем счетчик клиентов
 	printf("-disconnect\n"); PRINTNUSERS
 
 		// cleanup
