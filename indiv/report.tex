@@ -1,0 +1,350 @@
+\documentclass[a4paper,14pt]{article}
+\usepackage{amsmath}
+\usepackage[utf8]{inputenc} % 
+\usepackage{graphicx}
+\graphicspath{{pic/}}
+\DeclareGraphicsExtensions{.png,.jpg}
+\usepackage{multicol}
+
+\usepackage[russian]{babel} % правила переноса
+\usepackage[left=2cm,right=2cm,
+top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения размеров полей документа
+\usepackage{commath}
+\usepackage{listings}
+\usepackage[framed,numbered,autolinebreaks,useliterate]{mcode}
+\usepackage{longtable}
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%% Титульный лист %%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+	\newpage
+	\begin{center} % Размещение ткста - по центру
+		Санкт-Петербургский политехнический\\ 
+		университет Петра Великого\\
+		Институт компьютерных наук и технологий\\
+		Кафедра компьютерных систем и программных технологий\\
+		\vspace{7cm}
+		\textbf {Отчёт по лабораторной работе}\\
+		\textbf {Дисциплина:} Сети и телекоммуникационные технологии\\
+		\textbf{Тема:} Организация сетевого взаимодействия. Протокол TCP
+	\end{center} % Конец размещения
+	\vspace{8cm} % 
+	
+	\vfill
+	
+	\flushleft{Выполнил студент группы 33501/1} 
+	\hfill\parbox{9 cm}{\hspace*{3cm}\hbox to 0cm{\raisebox{-1em}{\small(подпись)}}\hspace*{-0.8cm}\rule{3cm}{0.8pt} У.А. Пеньевская}\\[0.6cm]
+	
+	\flushleft{Преподаватель} \hfill\parbox{9 cm}{\hspace*{3cm}\hbox to 0cm{\raisebox{-1em}{\small(подпись)}}\hspace*{-0.8cm}\rule{3cm}{0.8pt} А.О.Алексюк }\\[0.6cm]
+	
+	\hfill\parbox{9 cm}{\hspace*{5cm} \today }\\[0.6cm]
+
+	\vspace{\fill}
+	\begin{center}
+		Санкт-Петербург \\ 2017	
+	\end{center}
+\end{titlepage}
+
+\tableofcontents
+
+\newpage
+
+\setcounter {section}{0}
+\setcounter {equation}{0}
+\setcounter {figure}{0}
+\section{Цель работы}
+\hspace{0,5cm}   Изучение принципов программирования сокетов с использованием протокола TCP.
+\section{Индивидуальное задание}
+Разработать распределенную систему, состоящую из приложений клиента и сервера, для распределенного выставления/просмотра курсов валют. Информационная система должна обеспечивать параллельную работу нескольких клиентов.
+
+Основные возможности:
+Серверное приложение должно реализовывать следующие функции:
+\begin{enumerate}
+	
+\item Прослушивание определенного порта
+\item Обработка запросов на подключение по этому порту клиентов
+\item Поддержка одновременной работы нескольких клиентов с использованием механизма нитей и средств синхронизации доступа к разделяемым между нитями ресурсам.
+\item Принудительное отключение конкретного клиента
+\item Добавление новой валюты (кода валюты)
+\item Удаление валюты
+\item Добавление курса конкретной валюты
+\item Выдача пользователю списка имеющихся валют с текущими курсами и абсолютными/относительными приращениями к предыдущим значениям
+\item Выдача пользователю истории курса конкретной валюты
+\item *Сохранение состояния при выключении сервера
+\end{enumerate}
+Клиентское приложение должно реализовывать следующие функции:
+	\begin{enumerate}
+\item Возможность параллельной работы нескольких клиентов с одного или нескольких IP-адресов
+\item Установление соединения с сервером (возможно, с регистрацией на сервере)
+\item Разрыв соединения
+\item Обработка ситуации отключения сервером
+\item Получение и вывод списка валют с котировками/изменениями
+\item Передача команды на добавление валюты
+\item Передача команды на удаление валюты
+\item Передача команды на добавление курса валюты
+\item Получение и вывод истории котировок валюты
+\end{enumerate}
+Настройка приложений:
+
+Разработанное клиентское приложение должно предоставлять пользователю возможность задания IP-адреса или доменного имени сервера, а также номера порта сервера.
+
+Тестирование:
+Для тестирования запускается сервер системы котировок валют и несколько клиентов. В процессе тестирования проверяются основные функциональные возможности разработанной системы.
+
+\section{Разработанный прикладной протокол}
+Протокол TCP имеет следующий шаблон сообщения:
+\begin{center}
+	\textbf{<команда> <аттрибут> <аттрибут>}
+\end{center}
+В начале сообщения, всегда присутствует тип команды, далее взависимости от команды могут идти(взависимости от типа команды) аттрибуты, которые отделены друг от друга пробелом.
+
+\begin{longtable}[H]{ccccc}
+	\hline
+	\multicolumn{1}{|c|}{}  & \multicolumn{1}{c|}{Код команды} & \multicolumn{1}{c|}{Аттрибуты}  & \multicolumn{1}{c|}{Действия}  &    \multicolumn{1}{c|}{Ответ сервера}                        \\ \hline
+	
+	\multicolumn{1}{|c|}{1} & \multicolumn{1}{c|}{A} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}<ID>\\ <NAME>\\ <SHORT NAME>\\ <COURCE>  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Добавление новой валюты \\Add New Finance Position  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Added Finance Data: \\ ID: Name: Short name: \\Course: absCource: conCource  \end{tabular}} \\ \hline
+	
+	\multicolumn{1}{|c|}{2} & \multicolumn{1}{c|}{D} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}<ID>  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Удаление валюты \\Delete Finance Position  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Finance Data: \\ ID:0 Name: Short name: \\Course: 0.00 absCource: 0.00\\ conCource: 0.00  \end{tabular}} \\ \hline
+	
+	\multicolumn{1}{|c|}{3} & \multicolumn{1}{c|}{R} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Отсутствуют  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Выдача пользователю списка \\ имеющихся  валют \\ с текущими курсами \\ и абсолютными/относительными \\ приращениями \\ к предыдущим значениям \\Read All Finance Courcess  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Finance Data: \\ ID:0 Name: Short name: \\Course: 0.00 \\ absCource: 0.00 conCource: 0.00  \end{tabular}} \\ \hline
+	
+	\multicolumn{1}{|c|}{4} & \multicolumn{1}{c|}{С} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}<ID> \\<COURCE>   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Добавление курса конкретной валюты \\Add Finance Cource  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}}Finance Data: \\ ID:0 Name: Short name: \\Course: 0.00 absCource: 0.00\\ conCource: 0.00  \end{tabular}} \\ \hline
+	
+	\multicolumn{1}{|c|}{5} & \multicolumn{1}{c|}{O} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Отсутствуют   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Разрыв соединения \\ Exit Programm \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} -disconnect   \end{tabular}} \\ \hline
+	
+	\multicolumn{1}{|c|}{6} & \multicolumn{1}{c|}{M} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Отсутствуют   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Вывод меню \\  Show Menu \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} -   \end{tabular}} \\ \hline
+	
+	\multicolumn{1}{|c|}{7} & \multicolumn{1}{c|}{H} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} <ID>   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Получение и вывод истории \\ котировок валюты \\ Show History  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} -  \end{tabular}} \\ \hline
+	
+	\caption{Команды со стороны клиента}
+\end{longtable}
+Список команд, которыми оперирует клиент:
+
+\begin{lstlisting}
+| Add New Finance Position:  | A <ID> <NAME> <SHORT NAME> <COURCE>    
+| Delete Finance Position:   | D <ID>  
+| Read All Finance Courcess: | R                        
+| Add Finance Cource:        | C <ID> <COURCE>  
+| Exit Programm:             | O 
+| Show Menu:                 | M          
+| Show History               | H <ID>  
+\end{lstlisting}
+Посылка от сервера – клиенту.
+Посылка состоит из символа типа char – команды, а также, при необходимости, - данных.
+\begin{lstlisting}
+C - Client List 
+k <Socket number> - Kill klient 
+\end{lstlisting}
+\subsection{Описание структуры приложения на основе TCP}
+Сервер:
+
+Функция main:
+	\begin{itemize}		
+\item Инициализация всех используемых переменных;
+\item Запуск событий, если таковые уже имеются;
+\item Создание сокета;
+\item Создание потока для прослушивания сокета;
+\item Цикл чтения команд.
+\item Поток для прослушивания сокета:
+\item Прослушивание сокета;
+\item Добавление подключенного клиента в список;
+\item Создание сокета для работы с клиентом;
+\item Создание потока для работы с клиентом.
+\item Цикл чтения команд:
+\item Чтение команды из стандартного ввода;
+\item Реакция на введенную команду (при корректном вводе команды) или игнорирование команды.
+\item Поток для работы с клиентом:
+\item Получение сообщения от клиента;
+\item Анализ сообщения – является ли сообщение командой;
+\item Ответ на команду или вывод сообщения с пометкой отправителя.
+\end{itemize}
+Клиент:
+
+Функция main:
+	\begin{itemize}	
+\item Чтение ip адреса сервера;
+\item Подключение к серверу;
+\item Создание потока для получения данных от сервера;
+\item Цикл чтения данных и отправка серверу.
+\item Поток для получения данных от сервера:
+\item Побайтовое получение данных от сервера;
+\item Реакция на полученные данные .
+	\end{itemize}
+\section{Тестирование приложения на основе TCP}
+\subsection{Тестирование со стороны серверного приложения}
+Запускаем клиент-серверное приложение
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{1}}
+	\caption{Клиент-серверное приложение "Курс валют"}
+	\label{figCurves}
+\end{figure}
+
+Запускаем еще одного клиента
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{2}}
+	\caption{Подключение второго клиента}
+	\label{figCurves}
+\end{figure}
+
+Список подключенных клиентов можно посмотреть с помощью команды - С
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=70mm]{3}}
+	\caption{Список подключенных клиентов}
+	\label{figCurves}
+\end{figure}
+
+Отключить клиента - k <Socket number>
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=70mm]{4}}
+	\caption{Отключение одного из клиентов}
+	\label{figCurves}
+\end{figure}
+
+
+
+\newpage
+
+\subsection{Тестирование со стороны клиентского приложения}
+
+Проверка работоспособности команд
+
+Разорвем соединение с помощью команды O (Exit programm)
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=120mm]{21}}
+	\caption{Разрыв соединения}
+	\label{figCurves}
+\end{figure}
+
+Добавим новую валюту вводом команды: A 1 RUB RU 70.23
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{5}}
+	\caption{Добавление новой валюты}
+	\label{figCurves}
+\end{figure}
+
+Сервер выполнил команду добавление валюты (Added Finance Data)
+\newpage
+Изменим курс валюты с помощью команды: A 1 30
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{6}}
+	\caption{Изменение курса валюты}
+	\label{figCurves}
+\end{figure}
+
+На сервере получили сообщение о том, что курс валюты изменился. 
+
+absCourse = 70.23-30=40.23
+
+\newpage
+Добавим еще одну валюту (A 2 USA US 1.23), удалим её (D 2) и прочитаем список всех валют (R)
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{7}}
+	\caption{Удаление валюты}
+	\label{figCurves}
+\end{figure}
+\newpage
+
+Вывести меню еще раз командой М
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=160mm]{8}}
+	\caption{Вывод меню}
+	\label{figCurves}
+\end{figure}
+
+Вывести историю изменения валюты командой H <ID>
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=50mm]{9}}
+	\caption{Вывод истории}
+	\label{figCurves}
+\end{figure}
+
+\subsection {Обработка ошибок и предупреждений клиентского приложения}
+
+\subsubsection {Неполный список аргументов}
+Исходные данные: A 1
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{15}}
+	\caption{Обработка неполного количества аргументов}
+	\label{figCurves}
+\end{figure}
+
+\subsubsection {Избыток цифр в ID}
+Исходные данные: A 231241214 RUB RU 12
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{16}}
+	\caption{Обработка избытка цифр в ID}
+	\label{figCurves}
+\end{figure}
+
+\subsubsection {Некорректный ID}
+Исходные данные: A 34 RUB RU 12
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{17}}
+	\caption{Обработка некорректного ID}
+	\label{figCurves}
+\end{figure}
+
+\subsubsection {Слишком длинное название <NAME>}
+Исходные данные: A 2 ruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuub ru 12
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{10}}
+	\caption{Обработка <Name>}
+	\label{figCurves}
+\end{figure}
+
+\subsubsection {Слишком длинное <SHORT NAME>}
+Исходные данные: A 2 RUB ruuuuuuuuuuuuuuuuuuu 12
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{10}}
+	\caption{Обработка <Short name>}
+	\label{figCurves}
+\end{figure}
+
+\subsubsection {Курс с таким ID не найден}
+Исходные данные: D 4
+
+\begin{figure}[h!]
+	\noindent\centering{
+		\includegraphics[width=170mm]{14}}
+	\caption{Обработка <Short name>}
+	\label{figCurves}
+\end{figure}
+\section{Вывод}
+В данной лабораторной работе были реализованы клиент-серверные программы выставления курса валют, с написанием собственного протокола на основе TCP. Протокол был реализован на языке C++ для операционной системы Windows.\\\\
+На примере данной разработки были изучены основные приемы использования протокола транспортного уровня TCP – транспортного механизма, предоставляющего поток данных, с предварительной установкой соединения. Его преимуществом является достоверность получаемых данных (за счет осуществления повторного запроса данных в случае их потери, устранения дублирования при получении копий одного пакета).
+
+Однако TCP может не подходить в некоторых ситуациях обмена по сети вследствие медленной (по сравнению с UDP) работы. Например, передавая по сети данные требующие быстрого отклика в реальном времени, необходимо соблюдать жесткие временные рамки, которые не может выдержать протокол TCP.
+
+В ходе данной работы я так же ознакомился с протоколом UDP и реализовал клиент-серверное приложение платежной системы. По сравнению с TCP, UDP – более простой, основанный на сообщениях протокол без установления соединения, однако требует дополнительного контроля доставки сообщений ввиду следующих особенностей:
+\begin{itemize}
+	\item Ненадежность – когда сообщение посылается, неизвестно, достигнет ли оно своего назначения – оно может потеряться по пути.
+	\item Неупорядоченность – если два сообщения отправлены последовательно, порядок их получения не может быть предугадан.
+\end{itemize} 
+
+Исходя из этого, UDP наиболее часто используется чувствительными ко времени приложениями, когда  небольшие потери не играют большой роли. Если же нужна надежность, то предпочтительнее использовать TCP.
+\end{document}
