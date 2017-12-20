@@ -33,7 +33,7 @@ top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения ра
 	
 	\vfill
 	
-	\flushleft{Выполнил студент группы 33501/1} 
+	\flushleft{Выполнил студент группы 43501/1} 
 	\hfill\parbox{9 cm}{\hspace*{3cm}\hbox to 0cm{\raisebox{-1em}{\small(подпись)}}\hspace*{-0.8cm}\rule{3cm}{0.8pt} У.А. Пеньевская}\\[0.6cm]
 	
 	\flushleft{Преподаватель} \hfill\parbox{9 cm}{\hspace*{3cm}\hbox to 0cm{\raisebox{-1em}{\small(подпись)}}\hspace*{-0.8cm}\rule{3cm}{0.8pt} А.О.Алексюк }\\[0.6cm]
@@ -61,7 +61,6 @@ top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения ра
 Основные возможности:
 Серверное приложение должно реализовывать следующие функции:
 \begin{enumerate}
-	
 \item Прослушивание определенного порта
 \item Обработка запросов на подключение по этому порту клиентов
 \item Поддержка одновременной работы нескольких клиентов с использованием механизма нитей и средств синхронизации доступа к разделяемым между нитями ресурсам.
@@ -91,14 +90,12 @@ top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения ра
 
 Тестирование:
 Для тестирования запускается сервер системы котировок валют и несколько клиентов. В процессе тестирования проверяются основные функциональные возможности разработанной системы.
-
 \section{Разработанный прикладной протокол}
 Протокол TCP имеет следующий шаблон сообщения:
 \begin{center}
 	\textbf{<команда> <аттрибут> <аттрибут>}
 \end{center}
 В начале сообщения, всегда присутствует тип команды, далее взависимости от команды могут идти(взависимости от типа команды) аттрибуты, которые отделены друг от друга пробелом.
-
 \begin{longtable}[H]{ccccc}
 	\hline
 	\multicolumn{1}{|c|}{}  & \multicolumn{1}{c|}{Код команды} & \multicolumn{1}{c|}{Аттрибуты}  & \multicolumn{1}{c|}{Действия}  &    \multicolumn{1}{c|}{Ответ сервера}                        \\ \hline
@@ -117,10 +114,9 @@ top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения ра
 	
 	\multicolumn{1}{|c|}{7} & \multicolumn{1}{c|}{H} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} <ID>   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Получение и вывод истории \\ котировок валюты \\ Show History  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} -  \end{tabular}} \\ \hline
 	
-	\caption{Команды со стороны клиента}
+	\caption{Команды клиента}
 \end{longtable}
 Список команд, которыми оперирует клиент:
-
 \begin{lstlisting}
 | Add New Finance Position:  | A <ID> <NAME> <SHORT NAME> <COURCE>    
 | Delete Finance Position:   | D <ID>  
@@ -136,9 +132,8 @@ top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения ра
 C - Client List 
 k <Socket number> - Kill klient 
 \end{lstlisting}
-\subsection{Описание структуры приложения на основе TCP}
-Сервер:
-
+\subsection{Описание структуры приложения}
+Сервер:\\
 Функция main:
 	\begin{itemize}		
 \item Инициализация всех используемых переменных;
@@ -146,15 +141,21 @@ k <Socket number> - Kill klient
 \item Создание сокета;
 \item Создание потока для прослушивания сокета;
 \item Цикл чтения команд.
-\item Поток для прослушивания сокета:
+	\end{itemize}
+ Поток для прослушивания сокета:
+ \begin{itemize}
 \item Прослушивание сокета;
 \item Добавление подключенного клиента в список;
 \item Создание сокета для работы с клиентом;
 \item Создание потока для работы с клиентом.
-\item Цикл чтения команд:
+	\end{itemize}
+Цикл чтения команд:
+ \begin{itemize}
 \item Чтение команды из стандартного ввода;
 \item Реакция на введенную команду (при корректном вводе команды) или игнорирование команды.
-\item Поток для работы с клиентом:
+\end{itemize}
+Поток для работы с клиентом:
+ \begin{itemize}
 \item Получение сообщения от клиента;
 \item Анализ сообщения – является ли сообщение командой;
 \item Ответ на команду или вывод сообщения с пометкой отправителя.
@@ -167,12 +168,30 @@ k <Socket number> - Kill klient
 \item Подключение к серверу;
 \item Создание потока для получения данных от сервера;
 \item Цикл чтения данных и отправка серверу.
-\item Поток для получения данных от сервера:
+\end{itemize}
+Поток для получения данных от сервера:
+ \begin{itemize}
 \item Побайтовое получение данных от сервера;
 \item Реакция на полученные данные .
 	\end{itemize}
-\section{Тестирование приложения на основе TCP}
-\subsection{Тестирование со стороны серверного приложения}
+\section{Реализация программы}
+\subsection{Структура проекта}
+При разработке приложения для операционной системы семейства Windows использовалась среда разработки Microsoft Visual Studio.
+
+Язык программирования — С++.
+
+\subsection{Сетевая часть TCP}
+Клиентское приложение в TCP только отсылает команды на сервер, поэтому оно ничем не отличается от telnet клиента. Сервер обрабатывает команды, работает с коллекциями, сохраняет и загружает свое состояние, присылает уведомления и др. Делаем вывод, что клиентская программа потребляет ничтожно малый процессорный ресурс, в то время как сервер - наоборот.
+
+На сервере, в первую очередь, происходит инициализация WinSock (на Windows), создание сокета (функция socket), привязка сокета к конкретному адресу (функция bind). Реализация инициализации сервера представлена в \textbf{Приложении 1.}
+
+После этого ожидаем подключения клиентов в бесконечном цикле, с помощью функции accept. Если функция возвращает положительное значение, которое является клиентским сокетом, то создаем новый поток, в котором обрабатываем клиентские сообщения. Реализация подключения клиентов представлена в \textbf{Приложении 2.}
+
+Клиентский поток вызывает функцию считывания символов в бесконечном цикле, как только при считывается знак перевода строки, функция возращает прочитанные символы. Если функция не вернула исключение, то посылаем команду на обработку, в противном случае это обозначает отключение клиента. Также отключение клиента может быть произведено извне обработчика клиентского потока, посредством закрытия клиентского сокета(функция считывания в этом случае сразу же вернет исключение) командой \textbf{k <Socket number>} (Kill klient). Реализация клиентского потока
+представлена в \textbf{Приложении 3}.
+
+\section{Тестирование}
+\subsection{Тестирование серверного приложения}
 Запускаем клиент-серверное приложение
 \begin{figure}[h!]
 	\noindent\centering{
@@ -212,7 +231,7 @@ k <Socket number> - Kill klient
 
 \newpage
 
-\subsection{Тестирование со стороны клиентского приложения}
+\subsection{Тестирование клиентского приложения}
 
 Проверка работоспособности команд
 
@@ -228,17 +247,17 @@ k <Socket number> - Kill klient
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=170mm]{5}}
+		\includegraphics[width=150mm]{5}}
 	\caption{Добавление новой валюты}
 	\label{figCurves}
 \end{figure}
 
-Сервер выполнил команду добавление валюты (Added Finance Data)
-\newpage
+Сервер выполнил команду добавление валюты (Added Finance Data)\\
+
 Изменим курс валюты с помощью команды: A 1 30
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=170mm]{6}}
+		\includegraphics[width=140mm]{6}}
 	\caption{Изменение курса валюты}
 	\label{figCurves}
 \end{figure}
@@ -247,11 +266,10 @@ k <Socket number> - Kill klient
 
 absCourse = 70.23-30=40.23
 
-\newpage
 Добавим еще одну валюту (A 2 USA US 1.23), удалим её (D 2) и прочитаем список всех валют (R)
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=170mm]{7}}
+		\includegraphics[width=140mm]{7}}
 	\caption{Удаление валюты}
 	\label{figCurves}
 \end{figure}
@@ -270,7 +288,7 @@ absCourse = 70.23-30=40.23
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=50mm]{9}}
+		\includegraphics[width=40mm]{9}}
 	\caption{Вывод истории}
 	\label{figCurves}
 \end{figure}
@@ -336,15 +354,154 @@ absCourse = 70.23-30=40.23
 \end{figure}
 \section{Вывод}
 В данной лабораторной работе были реализованы клиент-серверные программы выставления курса валют, с написанием собственного протокола на основе TCP. Протокол был реализован на языке C++ для операционной системы Windows.\\\\
-На примере данной разработки были изучены основные приемы использования протокола транспортного уровня TCP – транспортного механизма, предоставляющего поток данных, с предварительной установкой соединения. Его преимуществом является достоверность получаемых данных (за счет осуществления повторного запроса данных в случае их потери, устранения дублирования при получении копий одного пакета).
+В ходе выполнения работы были изучены принципы организации многопоточного сервера, изучены принципы синхронизации доступа к глобальным переменным.
+В разработанном в ходе работы сервере для каждого клиента создается отдельный поток. Такой подход оправдан, т.к. клиенты могут исполнять долгие операции и операции различной трудоемкости. В этом случае использование отдельного потока для каждого клиента обеспечивает минимизацию взаимного влияния клиентов друг на друга. Создание потока – достаточно ресурсоемкая операция как по времени выполнения, так и по расходу оперативной памяти, поэтому при использовании данного подхода нужно следить за расходом памяти. \\\\
 
-Однако TCP может не подходить в некоторых ситуациях обмена по сети вследствие медленной (по сравнению с UDP) работы. Например, передавая по сети данные требующие быстрого отклика в реальном времени, необходимо соблюдать жесткие временные рамки, которые не может выдержать протокол TCP.
 
-В ходе данной работы я так же ознакомился с протоколом UDP и реализовал клиент-серверное приложение платежной системы. По сравнению с TCP, UDP – более простой, основанный на сообщениях протокол без установления соединения, однако требует дополнительного контроля доставки сообщений ввиду следующих особенностей:
-\begin{itemize}
-	\item Ненадежность – когда сообщение посылается, неизвестно, достигнет ли оно своего назначения – оно может потеряться по пути.
-	\item Неупорядоченность – если два сообщения отправлены последовательно, порядок их получения не может быть предугадан.
-\end{itemize} 
+\textbf{Приложение 1}
+\begin{lstlisting}
+DWORD thID;
 
-Исходя из этого, UDP наиболее часто используется чувствительными ко времени приложениями, когда  небольшие потери не играют большой роли. Если же нужна надежность, то предпочтительнее использовать TCP.
+WSADATA wsaData;
+int iResult; 
+int length=0;
+
+struct addrinfo *result = NULL;
+struct addrinfo hints;
+
+printf("Mail Server Started...\n");
+
+iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+printf("WSAS starting... \n");
+if (iResult != 0) 
+{
+	printf("WSAStartup failed with error: %d\n", iResult);
+	return 1;
+}
+
+ZeroMemory(&hints, sizeof(hints));
+
+sockaddr_in Server; 
+Server.sin_family = AF_INET;
+Server.sin_addr.s_addr = inet_addr("127.0.0.1"); //local_addr.sin_addr.s_addr=0; 
+Server.sin_port = htons(DEFAULT_PORT); 
+
+SOCKET MySocket;
+
+MySocket = socket(AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP);
+printf("Listening starting... \n");
+if (MySocket == INVALID_SOCKET) 
+{
+	printf("socket failed with error: %ld\n", WSAGetLastError());
+	freeaddrinfo(result);
+	WSACleanup();
+	return 1;
+}
+printf("Success! \n");
+
+iResult = bind( MySocket, (SOCKADDR *) & Server, sizeof (Server));
+printf("Bind starting... \n");
+if (iResult == SOCKET_ERROR) {
+	printf("bind failed with error: %d\n", WSAGetLastError());
+	freeaddrinfo(result);
+	closesocket(MySocket);
+	WSACleanup();
+	return 1;
+}
+\end{lstlisting}
+
+\textbf{Приложение 2}
+\begin{lstlisting}
+DWORD WINAPI ServToClient(LPVOID client_socket)
+{
+	SOCKET my_sock;
+	my_sock=((SOCKET *) client_socket)[0];
+	int MyID = ID;
+	char ID[8];
+	char SockBuf[8];
+	_itoa_s(my_sock, SockBuf, 10);
+	_itoa_s(MyID, ID, 10);
+	strcpy_s(UserInfo[MyID], "ID: ");
+	strcat_s(UserInfo[MyID], ID);
+	strcat_s(UserInfo[MyID], " Addr: ");
+	strcat_s(UserInfo[MyID], inet_ntoa(client_addr.sin_addr));
+	strcat_s(UserInfo[MyID], " S: ");
+	strcat_s(UserInfo[MyID], SockBuf);
+	strcat_s(UserInfo[MyID], "\n");
+	printf("%s", UserInfo[MyID]);
+	fflush(stdout);
+
+	char recvbuf[DEFAULT_BUFLEN]; 
+	int iResult;
+	char user[30];
+
+	memset(recvbuf, 0, DEFAULT_BUFLEN);
+	int end = 0;
+	memset(user, 0, 30);
+	
+	bool r = false;
+		
+	CCount = CCount -1; // Umenshaem schetchik klientov
+	printf("-disconnect\n"); PRINTNUSERS
+		
+	// cleanup
+		
+	// WSACleanup();
+		
+	printf("Complited! \n");
+		
+	return 0;
+}
+\end{lstlisting}
+\textbf{Приложение 3}
+\begin{lstlisting}
+  iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+printf("WSAS starting... \n");
+if (iResult != 0) {
+	printf("WSAStartup failed with error: %d\n", iResult);
+	return 1;
+}
+
+SOCKET my_sock;
+my_sock = socket(AF_UNSPEC, SOCK_STREAM, IPPROTO_TCP);
+printf("Opening socket... \n");
+if (my_sock == INVALID_SOCKET) 
+{
+	printf("socket failed with error: %ld\n", WSAGetLastError());
+	WSACleanup();
+	return 1;
+}
+printf("Success! \n");
+
+if (inet_addr(SERVERADDR)!=INADDR_NONE)
+client.sin_addr.s_addr=inet_addr(SERVERADDR);
+else
+
+if (hst=gethostbyname(SERVERADDR))
+{
+	((unsigned long *)&client.sin_addr)[0]=((unsigned long **)hst->h_addr_list)[0][0];
+}
+else 
+{
+	printf("Invalid address %s\n",SERVERADDR);
+	closesocket(my_sock);
+	WSACleanup();
+	return -1;
+}
+
+iResult = connect( my_sock, (SOCKADDR *) & client, sizeof(client));
+printf("Connecting... \n");
+if (iResult == SOCKET_ERROR) 
+{
+	closesocket(my_sock);
+	my_sock = INVALID_SOCKET;
+}
+if (my_sock == INVALID_SOCKET) 
+{
+	printf("Unable to connect to server!\n");
+	WSACleanup();
+	return 1;
+}
+printf("Connected to %s \n",SERVERADDR);
+\end{lstlisting}
 \end{document}
