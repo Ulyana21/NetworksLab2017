@@ -113,7 +113,6 @@ top=2cm,bottom=2cm,bindingoffset=0cm]{geometry} % для изменения ра
 	\multicolumn{1}{|c|}{6} & \multicolumn{1}{c|}{M} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Отсутствуют   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Вывод меню \\  Show Menu \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} -   \end{tabular}} \\ \hline
 	
 	\multicolumn{1}{|c|}{7} & \multicolumn{1}{c|}{H} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} <ID>   \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} Получение и вывод истории \\ котировок валюты \\ Show History  \end{tabular}} & \multicolumn{1}{l|}{\begin{tabular}[c]{@{}l@{}} -  \end{tabular}} \\ \hline
-	
 	\caption{Команды клиента}
 \end{longtable}
 Список команд, которыми оперирует клиент:
@@ -195,7 +194,7 @@ k <Socket number> - Kill klient
 Запускаем клиент-серверное приложение
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=170mm]{1}}
+		\includegraphics[width=150mm]{1}}
 	\caption{Клиент-серверное приложение "Курс валют"}
 	\label{figCurves}
 \end{figure}
@@ -204,7 +203,7 @@ k <Socket number> - Kill klient
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=170mm]{2}}
+		\includegraphics[width=150mm]{2}}
 	\caption{Подключение второго клиента}
 	\label{figCurves}
 \end{figure}
@@ -213,7 +212,7 @@ k <Socket number> - Kill klient
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=70mm]{3}}
+		\includegraphics[width=60mm]{3}}
 	\caption{Список подключенных клиентов}
 	\label{figCurves}
 \end{figure}
@@ -222,7 +221,7 @@ k <Socket number> - Kill klient
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=70mm]{4}}
+		\includegraphics[width=60mm]{4}}
 	\caption{Отключение одного из клиентов}
 	\label{figCurves}
 \end{figure}
@@ -247,7 +246,7 @@ k <Socket number> - Kill klient
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=150mm]{5}}
+		\includegraphics[width=130mm]{5}}
 	\caption{Добавление новой валюты}
 	\label{figCurves}
 \end{figure}
@@ -257,7 +256,7 @@ k <Socket number> - Kill klient
 Изменим курс валюты с помощью команды: A 1 30
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=140mm]{6}}
+		\includegraphics[width=130mm]{6}}
 	\caption{Изменение курса валюты}
 	\label{figCurves}
 \end{figure}
@@ -269,7 +268,7 @@ absCourse = 70.23-30=40.23
 Добавим еще одну валюту (A 2 USA US 1.23), удалим её (D 2) и прочитаем список всех валют (R)
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=140mm]{7}}
+		\includegraphics[width=130mm]{7}}
 	\caption{Удаление валюты}
 	\label{figCurves}
 \end{figure}
@@ -279,7 +278,7 @@ absCourse = 70.23-30=40.23
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=160mm]{8}}
+		\includegraphics[width=120mm]{8}}
 	\caption{Вывод меню}
 	\label{figCurves}
 \end{figure}
@@ -288,11 +287,11 @@ absCourse = 70.23-30=40.23
 
 \begin{figure}[h!]
 	\noindent\centering{
-		\includegraphics[width=40mm]{9}}
+		\includegraphics[width=35mm]{9}}
 	\caption{Вывод истории}
 	\label{figCurves}
 \end{figure}
-
+\newpage
 \subsection {Обработка ошибок и предупреждений клиентского приложения}
 
 \subsubsection {Неполный список аргументов}
@@ -322,7 +321,7 @@ absCourse = 70.23-30=40.23
 	\caption{Обработка некорректного ID}
 	\label{figCurves}
 \end{figure}
-
+\newpage
 \subsubsection {Слишком длинное название <NAME>}
 Исходные данные: A 2 ruuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuub ru 12
 
@@ -353,9 +352,10 @@ absCourse = 70.23-30=40.23
 	\label{figCurves}
 \end{figure}
 \section{Вывод}
-В данной лабораторной работе были реализованы клиент-серверные программы выставления курса валют, с написанием собственного протокола на основе TCP. Протокол был реализован на языке C++ для операционной системы Windows.\\\\
-В ходе выполнения работы были изучены принципы организации многопоточного сервера, изучены принципы синхронизации доступа к глобальным переменным.
-В разработанном в ходе работы сервере для каждого клиента создается отдельный поток. Такой подход оправдан, т.к. клиенты могут исполнять долгие операции и операции различной трудоемкости. В этом случае использование отдельного потока для каждого клиента обеспечивает минимизацию взаимного влияния клиентов друг на друга. Создание потока – достаточно ресурсоемкая операция как по времени выполнения, так и по расходу оперативной памяти, поэтому при использовании данного подхода нужно следить за расходом памяти. \\\\
+В ходе работы были изучены принципы программирования сокетов с использованием протокола TCP.\\
+Во время выполнения индивидуального задания была реализована клиент-серверная программа выставления/просмотра курса валют, с написанием собственного протокола на основе TCP. Приложение позволяет клиенту добавлять, удалять, просматривать курс валют; разрывать соединение с сервером. Протокол был реализован на языке C++ для операционной системы Windows.\\
+Были получены навыки организации многопоточного сервера, изучены принципы синхронизации доступа к глобальным переменным.
+В разработанном в ходе работы сервере для каждого клиента создается отдельный поток. Такой подход оправдан, т.к. клиенты могут исполнять долгие операции и операции различной трудоемкости. В этом случае использование отдельного потока для каждого клиента обеспечивает минимизацию взаимного влияния клиентов друг на друга.  \\\\
 
 
 \textbf{Приложение 1}
@@ -369,7 +369,7 @@ int length=0;
 struct addrinfo *result = NULL;
 struct addrinfo hints;
 
-printf("Mail Server Started...\n");
+printf("Exchange Rates Started...\n");
 
 iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 printf("WSAS starting... \n");
